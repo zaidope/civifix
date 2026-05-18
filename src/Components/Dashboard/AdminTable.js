@@ -33,7 +33,8 @@ function AdminTable(props) {
     fetch(`${API_URL}/admin`)
       .then((res) => res.json())
       .then((data) => {
-        setComplaints(data.reverse());
+        const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setComplaints(sortedData);
         props.setNoOfComplaints(data.length);
         props.setComplaintsFwded(
           data.filter((c) => c.status === "Resolved").length

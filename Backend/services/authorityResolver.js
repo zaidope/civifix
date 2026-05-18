@@ -15,7 +15,7 @@ const WardOfficerMap = require("../models/WardOfficerMap");
 const UlbMaster = require("../models/UlbMaster");
 const { resolveCivicGeography } = require("./polygonResolver");
 const { reverseGeocodeAreaName } = require("../zonesUtils");
-const { getWardDetailsFromExcel } = require("./excelResolver");
+const { getWardDetailsFromExcel, searchWardDetailsByText } = require("./excelResolver");
 
 /**
  * Helper to escape regex special characters
@@ -259,15 +259,22 @@ async function resolveAuthorityChain(issueType, lat, lng, area = null, pincode =
     ulbMap = await AreaUlbMap.findOne({ $or: locationQueries }).populate("ulb_id");
   }
 
-  if (!ulbMap && area && /bengaluru|bangalore/i.test(area)) {
+  if (!ulbMap) {
+    // Assume Bengaluru/BBMP context for text fallbacks if no specific area mapping found
     const bbmp = await UlbMaster.findOne({ ulb_name: /BBMP|Bruhat Bengaluru/i });
     if (bbmp) {
-      ulbMap = { ulb_id: bbmp, ward_name: "General", ward_number: null, area_name: "Bengaluru", pincode: null };
+      ulbMap = { ulb_id: bbmp, ward_name: "General", ward_number: null, area_name: area || "Bengaluru", pincode: null };
     }
   }
 
   const ulb = ulbMap ? ulbMap.ulb_id : null;
-  const resolvedWard = ulbMap ? ulbMap.ward_name : (ward || "General Area");
+  
+  // Try Excel fallback
+  let excelData = null;
+  if (area) excelData = searchWardDetailsByText(area);
+  if (!excelData && ward) excelData = searchWardDetailsByText(ward);
+
+  const resolvedWard = ulbMap && ulbMap.ward_name !== "General" ? ulbMap.ward_name : (excelData ? excelData.wardName : (ward || "General Area"));
 
   // MLA from area mapping
   let mlaMap = null;
@@ -281,16 +288,24 @@ async function resolveAuthorityChain(issueType, lat, lng, area = null, pincode =
 
   // Officers
   let primaryOfficer = null;
-  if (ulb && ulbMap) {
-    const wardOfficerMap = await WardOfficerMap.findOne({
-      ulb_id: ulb._id,
-      ward_name: ulbMap.ward_name,
-      department: responsibility.primary_department
-    }).populate("officer_id");
+  if (ulb) {
+    let searchWard = null;
+    if (ulbMap && ulbMap.ward_name !== "General") searchWard = ulbMap.ward_name;
+    else if (excelData) searchWard = excelData.wardName;
 
-    if (wardOfficerMap) {
-      primaryOfficer = wardOfficerMap.officer_id;
-    } else {
+    if (searchWard) {
+      const wardOfficerMap = await WardOfficerMap.findOne({
+        ulb_id: ulb._id,
+        ward_name: searchWard,
+        department: responsibility.primary_department
+      }).populate("officer_id");
+
+      if (wardOfficerMap) {
+        primaryOfficer = wardOfficerMap.officer_id;
+      }
+    }
+    
+    if (!primaryOfficer) {
       primaryOfficer = await UlbOfficial.findOne({
         ulb_id: ulb._id,
         department: responsibility.primary_department,
@@ -357,21 +372,26 @@ async function resolveAuthorityChain(issueType, lat, lng, area = null, pincode =
       }
     ],
     elected: [
-      { role: "Corporator", name: "Vacant", status: "vacant" },
+      { role: "Corporator", name: "Vacant", status: "vacant", ward_no: excelData ? excelData.wardNo : null },
       {
         role: "MLA",
-        name: mla ? mla.name : "Unassigned",
+        name: (excelData && excelData.mlaName && excelData.mlaName !== 'Unassigned') ? excelData.mlaName : (mla ? mla.name : "Unassigned"),
         party: mla ? mla.party : null,
-        constituency: mla ? mla.constituency : null
+        constituency: (excelData && excelData.acName) ? excelData.acName : (mla ? mla.constituency : null)
       },
-      { role: "MP", name: "Unassigned", party: null, constituency: null }
+      { 
+        role: "MP", 
+        name: (excelData && excelData.mpName && excelData.mpName !== 'Unassigned') ? excelData.mpName : "Unassigned", 
+        party: null, 
+        constituency: (excelData && excelData.pcName) ? excelData.pcName : null 
+      }
     ],
     ulb: ulb,
     routing_rationale: responsibility.routing_rationale,
     sla_days: responsibility.sla_days || 7,
     source_trust: {
       method: "text_match",
-      verified: !!ulbMap,
+      verified: !!ulbMap && !!excelData,
       last_verified_at: new Date()
     }
   };

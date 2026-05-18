@@ -44,7 +44,11 @@ function ResolverDashboard() {
 
     fetch(`${API_URL}/officer/${storedOfficer}`)
       .then((res) => res.json())
-      .then((data) => setComplaints(data.reverse()))
+      .then((data) => {
+        // Sort complaints by newest first
+        const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setComplaints(sortedData);
+      })
       .catch(() => {
         // Handle fetch error silently
       });
@@ -663,8 +667,38 @@ function ResolverDashboard() {
                </div>
 
                <h3 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h3>
-               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center justify-center min-h-[200px]">
-                  <p className="text-gray-500 font-medium">Select a tab from the sidebar to view detailed lists.</p>
+               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  {complaints.length === 0 ? (
+                    <div className="p-6 flex items-center justify-center min-h-[200px]">
+                      <p className="text-gray-500 font-medium">Select a tab from the sidebar to view detailed lists.</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {complaints.slice(0, 5).map(c => (
+                        <div key={c._id} className="p-4 hover:bg-slate-50 transition-colors flex items-center gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-gray-800">{c.category}</span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{c.status}</span>
+                            </div>
+                            <p className="text-sm text-gray-500 line-clamp-1">{c.description}</p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {c.date ? new Date(c.date).toLocaleDateString('en-IN') : 'N/A'} • {c.location}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setSelectedComplaint(c);
+                              setViewModal(true);
+                            }}
+                            className="px-3 py-1.5 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg text-sm font-semibold transition-colors"
+                          >
+                            View
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                </div>
             </div>
           )}

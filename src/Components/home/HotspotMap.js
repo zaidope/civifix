@@ -112,7 +112,7 @@ function HotspotMap() {
     async function fetchData() {
       try {
         const [zonesRes, compRes] = await Promise.all([
-          fetch(API_URL + "/api/zones"),
+          fetch(API_URL + "/zones"),
           fetch(API_URL + "/public-complaints"),
         ]);
         if (zonesRes.ok) setZones(await zonesRes.json());

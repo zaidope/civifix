@@ -42,10 +42,34 @@ function getWardDetailsFromExcel(wardNo) {
   return wardDataMap.get(Number(wardNo)) || null;
 }
 
+/**
+ * Lookup function to get ward details by text match on ward name or AC name.
+ * @param {string} text 
+ * @returns {Object|null} Ward details or null if not found
+ */
+function searchWardDetailsByText(text) {
+  if (!text || text.trim() === '') return null;
+  const lowerText = text.toLowerCase().trim();
+  
+  for (const [wardNo, details] of wardDataMap.entries()) {
+    const wardNameLower = details.wardName ? details.wardName.toLowerCase() : '';
+    const acNameLower = details.acName ? details.acName.toLowerCase() : '';
+
+    if (
+      (wardNameLower && (wardNameLower.includes(lowerText) || lowerText.includes(wardNameLower))) ||
+      (acNameLower && (acNameLower.includes(lowerText) || lowerText.includes(acNameLower)))
+    ) {
+      return { wardNo, ...details };
+    }
+  }
+  return null;
+}
+
 // Auto-initialize on import
 initializeExcelService();
 
 module.exports = {
   getWardDetailsFromExcel,
+  searchWardDetailsByText,
   initializeExcelService
 };

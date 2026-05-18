@@ -8,7 +8,7 @@ import imageCompression from 'browser-image-compression';
 
 
 
-function AddComplaintModal({ isOpen, onClose }) {
+function AddComplaintModal({ isOpen, onClose, onSuccess }) {
   const [data, setData] = useState({
     username: localStorage.getItem("citizen_username") || "",
     uid: localStorage.getItem("uid") || "",
@@ -320,6 +320,7 @@ function AddComplaintModal({ isOpen, onClose }) {
         setLocationDetected(false);
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput) fileInput.value = '';
+        if (onSuccess) onSuccess();
       } else {
         const errorData = await res.json();
         alert(`❌ Failed to submit complaint: ${errorData.msg || 'Unknown error'}`);

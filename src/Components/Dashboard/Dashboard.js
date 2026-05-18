@@ -30,6 +30,7 @@ function Dashboard() {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const citizen = useMemo(() => ({
     username: localStorage.getItem("citizen_username") || "",
@@ -49,11 +50,12 @@ function Dashboard() {
     fetch(`${API_URL}/history/${citizen.uid}`)
       .then((res) => res.json())
       .then((data) => {
-        setComplaints(data.reverse());
+        const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setComplaints(sortedData);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [citizen.uid]);
+  }, [citizen.uid, refreshKey]);
 
   const stats = useMemo(() => {
     let pending = 0;
@@ -357,6 +359,10 @@ function Dashboard() {
       <AddComplaintModal
         isOpen={showComplaintModal}
         onClose={() => setShowComplaintModal(false)}
+        onSuccess={() => {
+          setShowComplaintModal(false);
+          setRefreshKey(prev => prev + 1);
+        }}
       />
     </>
   );
