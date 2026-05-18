@@ -1,0 +1,236 @@
+/* ------------------------------
+   🌐 Global Styles – Citizen Grievance Portal
+--------------------------------*/
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* ------------------------------
+   🟦 Layout & Global Colors
+--------------------------------*/
+
+body {
+  background-color: #f8fafc;
+  color: #1f2937;
+  /* overflow-x: hidden; removed as it often breaks scroll-based animations at the root */
+}
+
+/* Scoped transitions — avoid global * { transition: all } (major paint cost) */
+a,
+button,
+.btn,
+.nav-link,
+.card,
+input,
+select,
+textarea,
+[role="button"] {
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.App {
+  min-height: 100vh;
+}
+
+/* Scrollbar styling (sleek, modern aesthetic) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0A0A;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ------------------------------
+   🧭 Navbar Styling
+--------------------------------*/
+
+.navbar {
+  background: rgba(10, 10, 10, 0.6) !important;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.navbar-brand {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.nav-link {
+  color: #e2e8f0 !important;
+  font-weight: 500;
+  margin: 0 8px;
+}
+
+.nav-link:hover {
+  color: #a5b4fc !important;
+}
+
+.navbar .dropdown-menu {
+  background-color: #1e293b;
+  border: none;
+}
+
+.navbar-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.dropdown-item {
+  color: #f8fafc !important;
+}
+
+.dropdown-item:hover {
+  background-color: #334155;
+}
+
+/* ------------------------------
+   🧾 Forms – Login & Register
+--------------------------------*/
+
+form {
+  width: 100%;
+}
+
+input,
+select,
+textarea {
+  font-size: 14px;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Gradient button (used in Register/Login) */
+.btn-gradient {
+  background: linear-gradient(to right, #4b6cb7, #182848);
+  color: white;
+  border: none;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(to right, #5b7cd6, #2b3f7a);
+}
+
+/* ------------------------------
+   🪧 Cards & Dashboards
+--------------------------------*/
+
+.card {
+  border-radius: 14px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.card:hover {
+  transform: translateY(-3px) translateZ(0);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* GPU layer hints for animated / fixed layers */
+.gpu-layer {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* Content below fold — skip layout work until near viewport */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Status Color Tags */
+.status-resolved {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-pending {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ------------------------------
+   📱 Responsive Tweaks
+--------------------------------*/
+
+@media (max-width: 768px) {
+  .navbar-brand span {
+    font-size: 0.9rem;
+  }
+
+  form {
+    padding: 1rem;
+  }
+
+  .card {
+    margin: 0.5rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .App {
+    padding: 0 10px;
+  }
+
+  .navbar-brand span {
+    display: none;
+  }
+}
+
+/* ------------------------------
+   🗺️ Leaflet Map Overrides
+--------------------------------*/
+.custom-leaflet-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #000 !important;
+  font-size: 1.5rem !important;
+  font-weight: 900 !important;
+  text-shadow: 0px 0px 4px rgba(255, 255, 255, 1) !important;
+}
+.custom-leaflet-tooltip::before {
+  display: none !important;
+}

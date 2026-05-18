@@ -1,0 +1,8 @@
+{
+  "Domestic_trash": 0,
+  "Infrastructure_Damage_Concrete": 1,
+  "Parking_Issues_Illegal_Parking": 2,
+  "Road_Issues_Damaged_Sign": 3,
+  "Road_Issues_Pothole": 4,
+  "Vandalism_Graffiti": 5
+}

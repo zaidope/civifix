@@ -1,0 +1,36 @@
+# How to Run the CivicFix Application
+
+To start the complete application next time, you will need to open four separate terminal windows and run the following commands.
+
+### 1. Start the Python AI Inference Service
+This service runs the YOLOv8 model for image prediction.
+1. Open a terminal and navigate to the project directory:
+   `cd "c:\Users\Zaid Azeemulla\Desktop\AI-powered-Local-Governance-and-Citizen-Engagement\inference_service"`
+2. Start the service using the virtual environment:
+   `.\venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 9000`
+
+### 2. Start the Node.js Backend Server
+This connects to MongoDB and provides the API for the frontend and mobile app.
+1. Open a second terminal and navigate to the Backend directory:
+   `cd "c:\Users\Zaid Azeemulla\Desktop\AI-powered-Local-Governance-and-Citizen-Engagement\Backend"`
+2. Start the server:
+   `node server.js`
+   (Wait until you see "🚀 Citizen Grievance server running on port 8000")
+
+### 3. Start the React Web Frontend
+This handles the web dashboard and citizen portal.
+1. Open a third terminal and navigate to the main project directory:
+   `cd "c:\Users\Zaid Azeemulla\Desktop\AI-powered-Local-Governance-and-Citizen-Engagement"`
+2. Start the React app:
+   `npm start`
+   (This will open the site in your browser at http://localhost:3000)
+
+### 4. Start the Expo Mobile App
+This is the mobile frontend for citizens and officers.
+1. Open a fourth terminal and navigate to the MobileApp directory:
+   `cd "c:\Users\Zaid Azeemulla\Desktop\civifixer\MobileApp"`
+2. Start Expo Metro bundler:
+   `npm start`
+3. Use the Expo Go app on your phone and scan the QR code to open the app on your mobile device. Ensure your phone and PC are connected to the exact same Wi-Fi network.
+
+Note: Since the mobile app accesses local IPs, ensure that the `HOST_IP` in `MobileApp\src\config.js` correctly matches your machine's current local Wi-Fi IP address (check using `ipconfig` if needed).

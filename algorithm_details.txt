@@ -1,0 +1,44 @@
+# Application Algorithms & Logic Details
+
+Here is the breakdown of the AI models, algorithms, and logical calculations implemented in the backend application:
+
+## 1. AI Model (YOLOv8)
+Although you mentioned "YOLOv26", the project utilizes the **YOLOv8** (You Only Look Once, version 8) model (`yolov8n.pt`). Need for real-time inference speed vs accuracy makes YOLO extremely suitable for this application.
+- **Purpose**: It performs image detection classification on user-uploaded grievance photos (e.g., classifying a road issue as a "pothole").
+- **Functionality**: The frontend or mobile app uploads an image to the backend, which forwards it to the Python inference service on port 9000. YOLOv8 processes it and returns the predicted label, confidence score, and bounding box coordinates outlining the issue.
+
+## 2. Severity Calculation
+Severity represents how large or visually impactful the issue is.
+- **Logic**: It is calculated by taking the area of the detected bounding box and comparing it to the total image area (`boxArea / imageArea`).
+- **Scoring**:
+  - **Level 1** (Low): Issue takes up less than 5% of the image.
+  - **Level 2** (Medium): Issue takes up between 5% and 15% of the image.
+  - **Level 3** (High): Issue takes up 15% or more of the image.
+If no image detection bounding box is provided, severity defaults to 1.
+
+## 3. Priority Calculation
+Priority determines the urgency of the issue for government officials. It combines three sub-scores:
+1. **Base Severity Score**: Takes the Severity Level (calculated above) and multiplies it by 2.
+2. **Duplicate Priority Bonus**: Searches for similar, unresolved complaints of the same category within a 200m radius using Haversine distance formula.
+   - 1 to 3 duplicates: +1 bonus 
+   - 4 to 7 duplicates: +2 bonus
+   - >7 duplicates: +3 bonus
+3. **Major Road Priority Bonus**: Uses OpenStreetMap Data (Overpass API) to check if the issue is within 50 meters of a major road (motorway, primary, trunk, or secondary).
+   - If true: +2 bonus
+   - If false: 0 bonus
+
+**Final Score & Level**:
+- **Priority Score** = (Base Severity * 2) + Duplicate Bonus + Road Bonus
+- **Priority Level Distribution**:
+  - Score <= 2: LOW 
+  - Score > 2 and <= 5: MEDIUM
+  - Score > 5: HIGH
+
+## 4. Civic Issue Hotspot Algorithm
+The hotspot algorithm groups localized complaints into "Zones" to help city officials visualize problem density on dashboards and maps.
+- **Criteria**: Zones are defined by a 2.5 kilometer radius.
+- **Logic**: 
+  - When a new complaint comes in, the system uses the Haversine formula to check the distance between the complaint and the center coordinates of all existing zones.
+  - If a zone center is within 2.5 km, the complaint is assigned to that existing `zone_id`.
+  - The system then increments the `total_issues` count and the respective priority count (`high_priority_count`, etc.) for that zone.
+  - If no zone exists within 2.5 km, a brand new zone is created centered exactly at the new complaint's latitude and longitude.
