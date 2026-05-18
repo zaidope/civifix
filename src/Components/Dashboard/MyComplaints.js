@@ -24,7 +24,7 @@ function MyComplaints() {
     fetch(`${API_URL}/history/${uid}`)
       .then((res) => res.json())
       .then((data) => {
-        setComplaints(data.reverse());
+        setComplaints(data);
         setLoading(false);
       })
       .catch(() => setLoading(false));

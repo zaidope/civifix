@@ -13,4 +13,6 @@ const zoneSchema = new mongoose.Schema({
   last_updated: { type: Date, default: Date.now },
 });
 
+zoneSchema.index({ center_lat: 1, center_lon: 1 });
+
 module.exports = mongoose.model("zones", zoneSchema);

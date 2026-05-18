@@ -50,4 +50,10 @@ const complaintSchema = new mongoose.Schema({
   upvotedBy: { type: [String], default: [] },
 });
 
+// Indexes for performance
+complaintSchema.index({ uid: 1 });
+complaintSchema.index({ category: 1, status: 1, latitude: 1, longitude: 1 });
+complaintSchema.index({ departmentOfficer: 1 });
+complaintSchema.index({ date: -1 });
+
 module.exports = mongoose.model("complaints", complaintSchema);

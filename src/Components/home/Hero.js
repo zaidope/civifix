@@ -44,8 +44,30 @@ function CinematicIntro({ children }) {
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
 
+    const totalFrames = 180;
+    const preloadFirstCount = 20;
+
     const renderFrame = (index) => {
-      const img = images.current[index];
+      let img = images.current[index];
+      // Fallback to the closest loaded frame to prevent blank flashes while loading on scroll
+      if (!img || !img.complete || img.naturalWidth === 0) {
+        let closestIndex = -1;
+        let minDiff = Infinity;
+        for (let i = 1; i <= totalFrames; i++) {
+          const checkImg = images.current[i];
+          if (checkImg && checkImg.complete && checkImg.naturalWidth !== 0) {
+            const diff = Math.abs(i - index);
+            if (diff < minDiff) {
+              minDiff = diff;
+              closestIndex = i;
+            }
+          }
+        }
+        if (closestIndex !== -1) {
+          img = images.current[closestIndex];
+        }
+      }
+
       if (img && img.complete && img.naturalWidth !== 0) {
         const ratio = Math.max(canvas.width / img.width, canvas.height / img.height);
         const w = img.width * ratio;
@@ -68,31 +90,30 @@ function CinematicIntro({ children }) {
     window.addEventListener("resize", handleResize);
     handleResize();
 
-    const totalFrames = 180;
-    const preloadFirstCount = 20;
-
     const loadFrame = (i) => {
+      if (images.current[i]) return images.current[i];
       const img = new Image();
       const indexStr = i.toString().padStart(3, "0");
       img.src = `/earthframes/ezgif-6eaa3726579bf57f-jpg/ezgif-frame-${indexStr}.jpg`;
+      img.onload = () => {
+        // Trigger a re-render of the current frame if this newly loaded frame is close to the active frame
+        if (Math.abs(frameRef.current - i) <= 2) {
+          renderFrame(frameRef.current);
+        }
+      };
       images.current[i] = img;
       return img;
     };
 
+    // Preload only the initial active frames on mount
     for (let i = 1; i <= preloadFirstCount; i++) {
       const img = loadFrame(i);
       if (i === 1) {
         img.onload = () => {
           if (frameRef.current === 1) renderFrame(1);
-        }
+        };
       }
     }
-
-    setTimeout(() => {
-      for (let i = preloadFirstCount + 1; i <= totalFrames; i++) {
-        loadFrame(i);
-      }
-    }, 100);
 
     const updateScroll = () => {
       const scrollTop = window.scrollY;
@@ -102,6 +123,14 @@ function CinematicIntro({ children }) {
 
       let frameIndex = Math.floor(progress * totalFrames);
       frameIndex = Math.min(180, Math.max(1, frameIndex));
+
+      // Just-in-time prefetch window: load current frame and next 15 frames dynamically on scroll
+      const prefetchLookahead = 15;
+      for (let i = frameIndex; i <= Math.min(totalFrames, frameIndex + prefetchLookahead); i++) {
+        if (!images.current[i]) {
+          loadFrame(i);
+        }
+      }
 
       if (frameRef.current !== frameIndex) {
         frameRef.current = frameIndex;

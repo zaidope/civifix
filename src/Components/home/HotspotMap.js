@@ -321,7 +321,7 @@ function HotspotMap() {
                       </React.Fragment>
                     );
                   })
-                : filteredComplaints.slice(0, 120).map((comp) => (
+                : filteredComplaints.map((comp) => (
                     <ComplaintMarker key={comp._id} comp={comp} />
                   ))}
             </MapContainer>

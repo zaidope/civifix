@@ -11,6 +11,7 @@ import AuthorityDataUpload from "./AuthorityDataUpload";
 function ResolverDashboard() {
   const navigate = useNavigate();
   const [complaints, setComplaints] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0); // Add a trigger to manually refetch
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [updateModal, setUpdateModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
@@ -47,7 +48,7 @@ function ResolverDashboard() {
       .catch(() => {
         // Handle fetch error silently
       });
-  }, [updateModal, forwardModal, navigate]);
+  }, [navigate, refreshKey]);
 
   // Update complaint status & comments
   async function handleStatusUpdate(id) {
@@ -84,6 +85,7 @@ function ResolverDashboard() {
         setComments("");
         setResolutionOfficerName("");
         setResolutionOfficerPhone("");
+        setRefreshKey(prev => prev + 1); // Refetch data
       } else {
         toast.error("❌ Failed to update complaint.");
       }
@@ -123,8 +125,8 @@ function ResolverDashboard() {
     }
   }
 
-  // Filter complaints based on active tab
-  const getFilteredComplaints = () => {
+  // Filter complaints based on active tab using useMemo to avoid repeated renders
+  const filteredComplaints = React.useMemo(() => {
     switch(activeTab) {
        case 'assigned':
           return complaints.filter(c => c.status !== "Resolved");
@@ -133,7 +135,7 @@ function ResolverDashboard() {
        default:
           return complaints;
     }
-  };
+  }, [complaints, activeTab]);
 
   // Badge UI helper
   const getStatusBadge = (status) => {
@@ -684,8 +686,8 @@ function ResolverDashboard() {
                      </h3>
                      <p className="text-gray-500 text-sm mt-1">
                         {activeTab === 'assigned' 
-                           ? `You have ${getFilteredComplaints().length} complaints requiring your attention.` 
-                           : `You have successfully resolved ${getFilteredComplaints().length} complaints.`}
+                           ? `You have ${filteredComplaints.length} complaints requiring your attention.` 
+                           : `You have successfully resolved ${filteredComplaints.length} complaints.`}
                      </p>
                   </div>
                </div>
@@ -704,7 +706,7 @@ function ResolverDashboard() {
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                        {getFilteredComplaints().map((c, i) => (
+                        {filteredComplaints.map((c, i) => (
                            <tr key={c._id} className="hover:bg-slate-50 transition-colors">
                               <td className="px-6 py-4">
                               <div className="font-mono text-xs text-indigo-600 font-bold mb-1">{c._id.slice(-6).toUpperCase()}</div>
@@ -812,7 +814,7 @@ function ResolverDashboard() {
                         </tbody>
                      </table>
 
-                     {getFilteredComplaints().length === 0 && (
+                     {filteredComplaints.length === 0 && (
                         <div className="text-center py-16 px-4">
                            <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
                               <CheckCircle className="w-8 h-8 text-gray-400" />
