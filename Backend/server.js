@@ -114,10 +114,10 @@ const complaintRoutes = require("./routes/complaintRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 
-app.use("/api/auth", authRoutes);
-app.use("/api/complaints", complaintRoutes);
-app.use("/api", adminRoutes); // Mounts /admin, /officer
-app.use("/api", analyticsRoutes); // Mounts /civic-points, /analytics, /zones
+app.use("/", authRoutes);
+app.use("/", complaintRoutes);
+app.use("/", adminRoutes); // Mounts /admin, /officer
+app.use("/", analyticsRoutes); // Mounts /civic-points, /analytics, /zones
 
 // Test route
 app.get("/test", (req, res) => {

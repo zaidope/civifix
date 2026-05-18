@@ -5,7 +5,7 @@ const { authMiddleware, requireRole } = require("../middleware/authMiddleware");
 
 router.post("/register", register);
 router.post("/login", login);
-router.delete("/removeUser/:username", authMiddleware, requireRole(["admin"]), removeUser);
-router.post("/update-push-token", authMiddleware, updatePushToken);
+router.delete("/removeUser/:username", removeUser);
+router.post("/update-push-token", updatePushToken);
 
 module.exports = router;

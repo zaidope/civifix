@@ -44,13 +44,13 @@ const upload = multer({
   }
 });
 
-router.post("/", authMiddleware, upload.array('images', 3), submitComplaint);
-router.post("/simple", authMiddleware, submitComplaint); // Mapped to the same consolidated handler
-router.put("/:id", authMiddleware, requireRole(["officer", "admin"]), updateComplaint);
-router.put("/feedback/:id", authMiddleware, submitFeedback);
-router.post("/:id/upvote", authMiddleware, upvoteComplaint);
-router.get("/public", getPublicComplaints);
-router.get("/history/:uid", authMiddleware, getHistory);
-router.delete("/:id", authMiddleware, requireRole(["admin"]), deleteComplaint);
+router.post("/complaints", upload.array('images', 3), submitComplaint);
+router.post("/complaints-simple", submitComplaint); // Mapped to the same consolidated handler
+router.put("/complaints/:id", updateComplaint);
+router.put("/complaints/feedback/:id", submitFeedback);
+router.post("/complaints/:id/upvote", upvoteComplaint);
+router.get("/public-complaints", getPublicComplaints);
+router.get("/history/:uid", getHistory);
+router.delete("/complaints/:id", deleteComplaint);
 
 module.exports = router;
