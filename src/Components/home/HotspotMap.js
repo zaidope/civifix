@@ -8,7 +8,7 @@ import "leaflet/dist/leaflet.css";
 import { ExternalLink, ArrowUp } from "lucide-react";
 import { API_URL } from "../../config";
 
-// India bounding box
+// Strict geographic bounding box for India to restrict map panning and optimize user view scope
 const INDIA_BOUNDS = L.latLngBounds(
   L.latLng(6.5, 68.0),
   L.latLng(35.5, 97.5)
