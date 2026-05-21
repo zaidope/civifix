@@ -38,7 +38,8 @@ const worker = new Worker("complaintQueue", async job => {
         const form = new FormData();
         form.append("file", fs.createReadStream(imagePath));
         try {
-          const resp = await axios.post("http://127.0.0.1:9000/predict", form, {
+          const aiServiceUrl = process.env.AI_SERVICE_URL || "http://127.0.0.1:9000";
+          const resp = await axios.post(`${aiServiceUrl}/predict`, form, {
             headers: form.getHeaders(),
             timeout: 15000,
           });
