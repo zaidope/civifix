@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { MapContainer, TileLayer, CircleMarker, useMapEvents, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { API_URL } from "../../config";
+import { API_URL, AI_URL } from "../../config";
 import AuthorityResolverWidget from "../AuthorityResolverWidget";
 import imageCompression from 'browser-image-compression';
 
@@ -189,8 +189,8 @@ function AddComplaintModal({ isOpen, onClose, onSuccess }) {
       const formData = new FormData();
       formData.append('file', file);
 
-      // We still map localhost:9000 for AI dynamically if we run AI service on the same host
-      const res = await fetch(`http://${window.location.hostname}:9000/predict`, {
+      // Use configured AI prediction service (supporting dev fallbacks & production env variables)
+      const res = await fetch(`${AI_URL}/predict`, {
         method: "POST",
         body: formData,
       });

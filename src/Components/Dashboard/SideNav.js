@@ -13,6 +13,7 @@ import {
   Home,
 } from "lucide-react";
 import { handleLogout } from "../../utils/logout";
+import { API_URL } from "../../config";
 
 function SideNav() {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ function SideNav() {
   const updateProfile = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:8000/update", {
+      const res = await fetch(`${API_URL}/update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newUserData),
